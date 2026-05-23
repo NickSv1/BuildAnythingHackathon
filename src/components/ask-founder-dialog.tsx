@@ -10,15 +10,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { sendInvestorMessage } from "@/lib/demo-store";
 
 export function AskFounderDialog({
   open,
   onOpenChange,
+  startupId,
   startupName,
   founderName,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  startupId: string;
   startupName: string;
   founderName: string;
 }) {
@@ -35,6 +38,7 @@ export function AskFounderDialog({
 
   function handleSend() {
     if (!question.trim()) return;
+    sendInvestorMessage(startupId, startupName, founderName, question);
     setSent(true);
     window.setTimeout(() => handleOpenChange(false), 1800);
   }
@@ -68,7 +72,7 @@ export function AskFounderDialog({
                 rows={4}
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
-                placeholder="e.g. What does your path to $1M ARR look like over the next 12 months?"
+                placeholder="e.g. I love this! Up for a coffee chat?"
                 className="resize-none"
               />
             </div>

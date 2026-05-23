@@ -1,15 +1,23 @@
-import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app-header";
+import { PitchVideoEmbed } from "@/components/pitch-video-embed";
+import { CURRENT_FOUNDER } from "@/lib/mock-data";
 import {
-  UploadCloud,
+  DEMO_PITCH_YOUTUBE_URL,
+  extractYouTubeVideoId,
+  getPitchSubmission,
+  submitFounderPitch,
+} from "@/lib/demo-store";
+import {
   CheckCircle2,
   Loader2,
   Circle,
-  Sparkles,
+  Eye,
   Info,
   Rocket,
   Video,
+  Link2,
 } from "lucide-react";
 
 export const Route = createFileRoute("/founder")({
@@ -39,26 +47,47 @@ type FormState = {
   stage: string;
   raise: string;
   traction: string;
-  videoName: string | null;
+  youtubeUrl: string;
 };
 
 const initialForm: FormState = {
-  company: "",
-  bio: "",
-  pitch: "",
-  sector: "",
-  stage: "",
-  raise: "",
-  traction: "",
-  videoName: null,
+  company: "Apten",
+  bio: `${CURRENT_FOUNDER.name} — building intentional digital wellbeing for millions of distracted users.`,
+  pitch: "Cut your screen time in half with a moment of intentionality before every distracting app.",
+  sector: "SaaS",
+  stage: "Seed",
+  raise: "$750k–$1.5M",
+  traction: "Revenue (MRR/ARR)",
+  youtubeUrl: "",
 };
 
 function FounderDashboard() {
+  const existingPitch = getPitchSubmission();
   const [form, setForm] = useState<FormState>(initialForm);
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted] = useState(Boolean(existingPitch));
   const [submitting, setSubmitting] = useState(false);
+  const [processingPitch, setProcessingPitch] = useState(false);
+  const [processedVideoId, setProcessedVideoId] = useState(existingPitch?.youtubeVideoId ?? "");
+  const [completedSteps, setCompletedSteps] = useState(
+    existingPitch ? 4 : 0,
+  );
 
-  const required: (keyof FormState)[] = ["company", "pitch", "sector", "stage", "raise"];
+  useEffect(() => {
+    if (!submitted) {
+      setCompletedSteps(0);
+      return;
+    }
+    setCompletedSteps(2);
+    const finishAi = window.setTimeout(() => setCompletedSteps(3), 2500);
+    const finishListing = window.setTimeout(() => setCompletedSteps(4), 5000);
+    return () => {
+      window.clearTimeout(finishAi);
+      window.clearTimeout(finishListing);
+    };
+  }, [submitted]);
+
+  const required: (keyof FormState)[] = ["company", "pitch", "sector", "stage", "raise", "youtubeUrl"];
+  const videoId = extractYouTubeVideoId(form.youtubeUrl);
   const completion = Math.round(
     (required.filter((k) => Boolean(form[k])).length / required.length) * 100,
   );
@@ -68,12 +97,16 @@ function FounderDashboard() {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (completion < 100) return;
+    if (completion < 100 || !videoId) return;
     setSubmitting(true);
-    setTimeout(() => {
+    setProcessingPitch(true);
+    window.setTimeout(() => {
+      submitFounderPitch(form.company, form.youtubeUrl, videoId);
+      setProcessedVideoId(videoId);
+      setProcessingPitch(false);
       setSubmitting(false);
       setSubmitted(true);
-    }, 900);
+    }, 2200);
   };
 
   return (
@@ -82,7 +115,7 @@ function FounderDashboard() {
 
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
         <header className="mb-8 max-w-3xl">
-          <div className="inline-flex items-center gap-1.5 rounded-full border-2 border-destructive/30 bg-destructive/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-destructive">
+          <div className="inline-flex items-center gap-1.5 rounded-full border-2 border-copper/30 bg-copper/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-copper">
             <Rocket className="h-3 w-3" /> Founder Portal · Free Submission
           </div>
           <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -96,7 +129,17 @@ function FounderDashboard() {
 
         <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
           {submitted ? (
-            <SuccessCard form={form} onReset={() => { setForm(initialForm); setSubmitted(false); }} />
+            <SuccessCard
+              form={form}
+              videoId={processedVideoId}
+              listed={completedSteps >= 4}
+              onReset={() => {
+                setForm(initialForm);
+                setSubmitted(false);
+                setProcessedVideoId("");
+                setCompletedSteps(0);
+              }}
+            />
           ) : (
             <SubmissionForm
               form={form}
@@ -104,9 +147,15 @@ function FounderDashboard() {
               onSubmit={onSubmit}
               completion={completion}
               submitting={submitting}
+              processingPitch={processingPitch}
+              videoId={videoId}
             />
           )}
-          <StatusTracker submitted={submitted} />
+          <StatusTracker
+            submitted={submitted}
+            processing={processingPitch}
+            completedSteps={completedSteps}
+          />
         </div>
       </main>
     </div>
@@ -119,12 +168,16 @@ function SubmissionForm({
   onSubmit,
   completion,
   submitting,
+  processingPitch,
+  videoId,
 }: {
   form: FormState;
   update: <K extends keyof FormState>(k: K, v: FormState[K]) => void;
   onSubmit: (e: React.FormEvent) => void;
   completion: number;
   submitting: boolean;
+  processingPitch: boolean;
+  videoId: string | null;
 }) {
   return (
     <form onSubmit={onSubmit} className="rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
@@ -148,7 +201,7 @@ function SubmissionForm({
           <Input
             value={form.company}
             onChange={(e) => update("company", e.target.value)}
-            placeholder="e.g. Clearspace"
+            placeholder="e.g. Apten"
           />
         </Field>
 
@@ -200,32 +253,26 @@ function SubmissionForm({
           </Field>
         </div>
 
-        <Field label="Video Pitch (max 3 minutes)">
-          <label className="group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-background/60 px-6 py-8 text-center transition-colors hover:border-primary/60 hover:bg-primary/5">
-            {form.videoName ? (
-              <>
-                <Video className="h-6 w-6 text-primary" />
-                <div className="text-sm font-medium text-foreground">{form.videoName}</div>
-                <div className="text-xs text-muted-foreground">Click to replace</div>
-              </>
-            ) : (
-              <>
-                <UploadCloud className="h-6 w-6 text-muted-foreground group-hover:text-primary" />
-                <div className="text-sm font-medium">
-                  Drag &amp; drop your video, or <span className="text-primary">browse files</span>
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  MP4 or MOV · up to 3 minutes · 1080p recommended
-                </div>
-              </>
-            )}
-            <input
-              type="file"
-              className="hidden"
-              accept="video/*"
-              onChange={(e) => update("videoName", e.target.files?.[0]?.name ?? null)}
+        <Field label="YouTube Pitch Link" required>
+          <div className="relative">
+            <Link2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={form.youtubeUrl}
+              onChange={(e) => update("youtubeUrl", e.target.value)}
+              placeholder={DEMO_PITCH_YOUTUBE_URL}
+              className="pl-9"
             />
-          </label>
+          </div>
+          {form.youtubeUrl && !videoId && (
+            <p className="mt-1.5 text-xs text-destructive">
+              Paste a valid YouTube URL (e.g. youtube.com/watch?v=…)
+            </p>
+          )}
+          {videoId && (
+            <p className="mt-1.5 inline-flex items-center gap-1 text-xs text-primary">
+              <Video className="h-3.5 w-3.5" /> Video detected — ready to process on submit
+            </p>
+          )}
         </Field>
 
         <div className="flex flex-col-reverse items-stretch justify-between gap-3 border-t border-border pt-5 sm:flex-row sm:items-center">
@@ -234,17 +281,23 @@ function SubmissionForm({
           </span>
           <button
             type="submit"
-            disabled={completion < 100 || submitting}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-destructive px-5 py-2.5 text-sm font-semibold text-destructive-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={completion < 100 || submitting || !videoId}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {submitting ? (
+            {processingPitch ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" /> Processing pitch…
+              </>
+            ) : submitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" /> Submitting…
               </>
             ) : (
               <>
                 <Rocket className="h-4 w-4" />
-                {completion < 100 ? `Complete ${100 - completion}% more to submit` : "Submit for Vetting"}
+                {completion < 100
+                  ? `Complete ${100 - completion}% more to submit`
+                  : "Submit for Vetting"}
               </>
             )}
           </button>
@@ -254,27 +307,54 @@ function SubmissionForm({
   );
 }
 
-function SuccessCard({ form, onReset }: { form: FormState; onReset: () => void }) {
+function SuccessCard({
+  form,
+  videoId,
+  listed,
+  onReset,
+}: {
+  form: FormState;
+  videoId: string;
+  listed: boolean;
+  onReset: () => void;
+}) {
   return (
     <div className="rounded-xl border-2 border-primary/40 bg-card p-8 text-center shadow-sm">
       <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-primary/15 text-primary">
         <CheckCircle2 className="h-7 w-7" />
       </div>
       <h2 className="mt-4 text-2xl font-semibold tracking-tight">
-        {form.company || "Your startup"} is in the queue
+        {form.company || "Your startup"} pitch processed
       </h2>
       <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-        Our vetting team has been notified. Expect AI-generated bull/bear cards and an
-        initial outreach window within 48 hours.
+        Hi {CURRENT_FOUNDER.name} — your YouTube pitch was ingested. AI bull/bear cards and
+        investor feed listing are being generated now.
       </p>
+      {videoId && (
+        <div className="mx-auto mt-5 max-w-lg overflow-hidden rounded-md border border-border text-left">
+          <PitchVideoEmbed
+            videoId={videoId}
+            title={`${form.company} founder pitch`}
+          />
+        </div>
+      )}
       <div className="mx-auto mt-5 grid max-w-sm grid-cols-3 gap-3 text-xs">
         <Pill label="Stage" value={form.stage || "—"} />
         <Pill label="Sector" value={form.sector || "—"} />
         <Pill label="Raise" value={form.raise || "—"} />
       </div>
+      {listed && (
+        <Link
+          to="/founder-feed"
+          className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+        >
+          View your live listing
+        </Link>
+      )}
       <button
+        type="button"
         onClick={onReset}
-        className="mt-6 text-xs font-medium text-primary hover:underline"
+        className="mt-4 text-xs font-medium text-muted-foreground hover:text-foreground hover:underline"
       >
         Submit another startup
       </button>
@@ -311,11 +391,11 @@ function Field({
   );
 }
 
-function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
+function Input({ className = "", ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className="h-10 w-full rounded-md border border-border bg-background px-3 text-sm placeholder:text-muted-foreground focus:border-primary/60 focus:outline-none"
+      className={`h-10 w-full rounded-md border border-border bg-background px-3 text-sm placeholder:text-muted-foreground focus:border-primary/60 focus:outline-none ${className}`}
     />
   );
 }
@@ -348,14 +428,31 @@ function Select({
   );
 }
 
-function StatusTracker({ submitted }: { submitted: boolean }) {
+function StatusTracker({
+  submitted,
+  processing,
+  completedSteps,
+}: {
+  submitted: boolean;
+  processing?: boolean;
+  completedSteps: number;
+}) {
   const steps = [
     { title: "Submission Received", desc: "We have your pitch and metadata." },
     { title: "Manual & AI Quality Vetting", desc: "Reviewer + model scoring your fundamentals." },
     { title: "AI Summary & Asset Generation", desc: "Structured cards, Bull/Bear, transcript." },
     { title: "Listed to Atlas Marketplace", desc: "Visible to matched institutional angels." },
   ];
-  const activeIdx = submitted ? 1 : 0;
+
+  function stepState(index: number): "done" | "active" | "pending" {
+    if (!submitted && !processing) return "pending";
+    if (processing && !submitted) {
+      return index === 0 ? "active" : "pending";
+    }
+    if (index < completedSteps) return "done";
+    if (index === completedSteps && completedSteps < steps.length) return "active";
+    return "pending";
+  }
 
   return (
     <aside className="space-y-4">
@@ -366,7 +463,7 @@ function StatusTracker({ submitted }: { submitted: boolean }) {
 
         <ol className="relative mt-6 space-y-6 before:absolute before:left-[11px] before:top-2 before:h-[calc(100%-1rem)] before:w-px before:bg-border">
           {steps.map((s, i) => {
-            const state = i < activeIdx ? "done" : i === activeIdx && submitted ? "active" : i === 0 && !submitted ? "active" : "pending";
+            const state = stepState(i);
             return (
               <li key={i} className="relative flex gap-4">
                 <div className="relative z-10">
@@ -397,7 +494,12 @@ function StatusTracker({ submitted }: { submitted: boolean }) {
                     </span>
                     {state === "active" && (
                       <span className="rounded-sm bg-primary/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
-                        In Progress
+                        {completedSteps >= steps.length - 1 && submitted ? "Almost there" : "In Progress"}
+                      </span>
+                    )}
+                    {state === "done" && i === steps.length - 1 && submitted && completedSteps >= steps.length && (
+                      <span className="rounded-sm bg-primary/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                        Live
                       </span>
                     )}
                   </div>
@@ -421,7 +523,7 @@ function StatusTracker({ submitted }: { submitted: boolean }) {
 
       <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
         <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          <Sparkles className="h-3.5 w-3.5 text-primary" /> What investors will see
+          <Eye className="h-3.5 w-3.5 text-primary" /> What investors will see
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
           Your pitch appears in the investor feed alongside an AI Bull/Bear committee

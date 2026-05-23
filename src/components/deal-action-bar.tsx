@@ -64,6 +64,7 @@ export function DealActionBar({
           icon={<ThumbsUp className="h-4 w-4" />}
           label={interested ? "Interested ✓" : "Interested"}
           active={interested}
+          tone="interested"
           compact={layout === "inline"}
           onClick={handleInterested}
         />
@@ -90,6 +91,7 @@ export function DealActionBar({
       <AskFounderDialog
         open={askOpen}
         onOpenChange={setAskOpen}
+        startupId={s.id}
         startupName={s.name}
         founderName={founderName}
       />
@@ -101,23 +103,32 @@ function ActionBtn({
   icon,
   label,
   active,
+  tone = "default",
   compact,
   onClick,
 }: {
   icon: React.ReactNode;
   label: string;
   active?: boolean;
+  tone?: "default" | "interested";
   compact?: boolean;
   onClick: (e: React.MouseEvent) => void;
 }) {
+  const activeClass =
+    tone === "interested"
+      ? "bg-interested text-interested-foreground ring-1 ring-interested/40"
+      : "bg-primary/15 text-primary ring-1 ring-primary/30";
+
   return (
     <button
       type="button"
       onClick={onClick}
       className={`inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-2 text-xs font-medium transition-colors ${
         active
-          ? "bg-primary/15 text-primary ring-1 ring-primary/30"
-          : "text-muted-foreground hover:bg-surface hover:text-foreground"
+          ? activeClass
+          : tone === "interested"
+            ? "text-interested hover:bg-interested/10"
+            : "text-muted-foreground hover:bg-surface hover:text-foreground"
       }`}
     >
       {icon}

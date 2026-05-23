@@ -1,7 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Bell, Search, Sun, Moon, Briefcase, Rocket, Home, Users, MessageSquare, BarChart3 } from "lucide-react";
+import { Bell, Search, Sun, Moon, Briefcase, Rocket, Home, Users, MessageSquare, BarChart3, LayoutList } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
-import { CURRENT_INVESTOR } from "@/lib/mock-data";
+import { CURRENT_FOUNDER, CURRENT_INVESTOR } from "@/lib/mock-data";
 import { AvatarImage } from "@/components/avatar-image";
 import { AtlasLogo } from "@/components/atlas-logo";
 
@@ -36,6 +36,7 @@ export function AppHeader() {
           ) : (
             <>
               <NavIcon to="/founder" icon={<Home className="h-5 w-5" />} label="Pitch" active={pathname === "/founder"} />
+              <NavIcon to="/founder-feed" icon={<LayoutList className="h-5 w-5" />} label="Listing" active={pathname.startsWith("/founder-feed")} />
               <NavIcon to="/founder-analytics" icon={<BarChart3 className="h-5 w-5" />} label="Analytics" active={pathname.startsWith("/founder-analytics")} />
               <NavIcon to="/founder-messages" icon={<MessageSquare className="h-5 w-5" />} label="Messages" active={pathname.startsWith("/founder-messages")} />
             </>
@@ -54,12 +55,23 @@ export function AppHeader() {
           <button className="rounded-full p-2 text-muted-foreground hover:bg-surface hover:text-foreground">
             <Bell className="h-4 w-4" />
           </button>
-          <AvatarImage
-            src={CURRENT_INVESTOR.avatarUrl}
-            alt={CURRENT_INVESTOR.name}
-            className="h-8 w-8 rounded-full ring-1 ring-border"
-            fallback={<span className="text-[10px] font-semibold">AM</span>}
-          />
+          {isFounder ? (
+            <AvatarImage
+              src={CURRENT_FOUNDER.avatarUrl}
+              alt={CURRENT_FOUNDER.name}
+              className="h-8 w-8 rounded-full ring-1 ring-border"
+              fallback={<span className="text-[10px] font-semibold">D</span>}
+            />
+          ) : (
+            <Link to="/investor" aria-label="Alex Morgan profile">
+              <AvatarImage
+                src={CURRENT_INVESTOR.avatarUrl}
+                alt={CURRENT_INVESTOR.name}
+                className="h-8 w-8 rounded-full ring-1 ring-border hover:ring-interested/40"
+                fallback={<span className="text-[10px] font-semibold">AM</span>}
+              />
+            </Link>
+          )}
         </div>
       </div>
     </header>
@@ -106,7 +118,7 @@ function RoleSwitcher({ current }: { current: "investor" | "founder" }) {
         to="/founder"
         className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-semibold transition-all ${
           current === "founder"
-            ? "bg-destructive text-destructive-foreground shadow-[0_2px_8px_-2px_var(--destructive)]"
+            ? "bg-copper text-copper-foreground shadow-[0_2px_8px_-2px_var(--copper)]"
             : "text-muted-foreground hover:text-foreground"
         }`}
       >

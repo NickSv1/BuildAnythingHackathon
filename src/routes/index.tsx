@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app-header";
 import { FeedPost } from "@/components/feed-post";
 import { EvaluationPanel } from "@/components/evaluation-panel";
-import { CURRENT_INVESTOR, FEED_STARTUPS } from "@/lib/mock-data";
+import { CURRENT_INVESTOR, FEED_STARTUPS, getFounderListedStartup } from "@/lib/mock-data";
+import { useDemoStore } from "@/lib/demo-store";
 import { AvatarImage } from "@/components/avatar-image";
 import {
   X,
@@ -15,7 +16,6 @@ import {
   Image,
   Video,
   FileText,
-  Sparkles,
   Rocket,
 } from "lucide-react";
 
@@ -39,8 +39,16 @@ export const Route = createFileRoute("/")({
 });
 
 function InvestorDashboard() {
+  const { pitchSubmission } = useDemoStore();
+  const feedPosts = useMemo(() => {
+    if (!pitchSubmission) return FEED_STARTUPS;
+    const listed = getFounderListedStartup();
+    const rest = FEED_STARTUPS.filter((s) => s.id !== listed.id);
+    return [listed, ...rest];
+  }, [pitchSubmission]);
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const selected = FEED_STARTUPS.find((s) => s.id === selectedId) ?? null;
+  const selected = feedPosts.find((s) => s.id === selectedId) ?? null;
 
   useEffect(() => {
     if (!selected) return;
@@ -67,9 +75,15 @@ function InvestorDashboard() {
         {/* Center feed */}
         <section className="space-y-4">
           <ComposerCard />
-          <FeedFilterBar />
-          {FEED_STARTUPS.map((s) => (
-            <FeedPost key={s.id} s={s} onOpen={() => setSelectedId(s.id)} />
+          <FeedFilterBar dealCount={feedPosts.length} newListing={Boolean(pitchSubmission)} />
+          {feedPosts.map((s, index) => (
+            <FeedPost
+              key={s.id}
+              s={s}
+              onOpen={() => setSelectedId(s.id)}
+              postedAgo={pitchSubmission && index === 0 ? "10 seconds ago" : undefined}
+              isOwnListing={false}
+            />
           ))}
           <div className="py-4 text-center text-[11px] text-muted-foreground">
             You're all caught up · refresh for more deals
@@ -89,11 +103,11 @@ function InvestorDashboard() {
           onClick={() => setSelectedId(null)}
         >
           <div
-            className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-xl border border-border bg-background shadow-2xl animate-in zoom-in-95 duration-200"
+            className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-xl border border-interested/20 bg-surface shadow-2xl ring-1 ring-interested/10 animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="sticky top-0 z-20 flex shrink-0 items-center justify-between border-b border-border bg-background/95 px-4 py-3 backdrop-blur">
-              <span className="truncate text-sm font-semibold">{selected.name}</span>
+            <div className="sticky top-0 z-20 flex shrink-0 items-center justify-between border-b border-interested/15 bg-card/95 px-4 py-3 backdrop-blur">
+              <span className="truncate text-sm font-semibold text-interested">{selected.name}</span>
               <button
                 onClick={() => setSelectedId(null)}
                 className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-border bg-surface text-muted-foreground hover:border-destructive/50 hover:text-foreground"
@@ -112,13 +126,23 @@ function InvestorDashboard() {
 
 function ProfileCard() {
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-      <div className="h-14 bg-gradient-to-br from-primary/40 via-primary/20 to-destructive/30" />
-      <div className="-mt-8 flex flex-col items-center px-4 pb-4 text-center">
+    <div className="rounded-xl border border-border bg-card shadow-sm">
+      <Link
+        to="/investor"
+        className="relative block h-20 overflow-hidden rounded-t-xl"
+      >
+        <img
+          src={CURRENT_INVESTOR.coverImageUrl}
+          alt=""
+          className="h-full w-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-[#070b17]/35" aria-hidden />
+      </Link>
+      <div className="relative z-10 -mt-10 flex flex-col items-center px-4 pb-4 text-center">
         <AvatarImage
           src={CURRENT_INVESTOR.avatarUrl}
           alt={CURRENT_INVESTOR.name}
-          className="h-16 w-16 rounded-full ring-4 ring-card"
+          className="relative z-10 h-16 w-16 rounded-full bg-card ring-4 ring-card"
           fallback={
             <span className="text-lg font-semibold text-foreground">AM</span>
           }
@@ -131,8 +155,8 @@ function ProfileCard() {
         </div>
       </div>
       <Link
-        to="/"
-        className="block border-t border-border px-4 py-2 text-center text-xs font-medium text-foreground hover:bg-surface"
+        to="/investor"
+        className="block border-t border-border px-4 py-2 text-center text-xs font-medium text-interested hover:bg-interested/5"
       >
         View investor profile
       </Link>
@@ -201,13 +225,20 @@ function ComposerBtn({ icon, label }: { icon: React.ReactNode; label: string }) 
   );
 }
 
-function FeedFilterBar() {
+function FeedFilterBar({
+  dealCount,
+  newListing,
+}: {
+  dealCount: number;
+  newListing?: boolean;
+}) {
   const tabs = ["For you", "Following", "New raises", "Pre-seed"];
   return (
     <div className="flex items-center gap-1 overflow-x-auto rounded-xl border border-border bg-card p-1 shadow-sm">
       {tabs.map((t, i) => (
         <button
           key={t}
+          type="button"
           className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
             i === 0
               ? "bg-foreground text-background"
@@ -217,7 +248,12 @@ function FeedFilterBar() {
           {t}
         </button>
       ))}
-      <span className="ml-auto pr-2 text-[11px] text-muted-foreground">{FEED_STARTUPS.length} live deals</span>
+      <span className="ml-auto shrink-0 pr-2 text-[11px] text-muted-foreground">
+        {newListing && (
+          <span className="mr-2 font-medium text-primary">1 new · </span>
+        )}
+        {dealCount} live deals
+      </span>
     </div>
   );
 }
@@ -251,18 +287,18 @@ function TrendingSectors() {
 
 function FounderCTA() {
   return (
-    <div className="rounded-xl border-2 border-destructive/30 bg-gradient-to-br from-destructive/10 to-primary/5 p-4 shadow-sm">
+    <div className="rounded-xl border-2 border-copper/30 bg-copper/5 p-4 shadow-sm">
       <div className="flex items-center gap-2 text-sm font-semibold">
-        <Rocket className="h-4 w-4 text-destructive" /> Are you a founder?
+        <Rocket className="h-4 w-4 text-copper" /> Are you a founder?
       </div>
       <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
         Get in front of 1,200+ verified angel investors. Free submission, no warm intro.
       </p>
       <Link
         to="/founder"
-        className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-destructive px-3 py-2 text-xs font-semibold text-destructive-foreground hover:opacity-90"
+        className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-copper px-3 py-2 text-xs font-semibold text-copper-foreground hover:opacity-90"
       >
-        <Sparkles className="h-3.5 w-3.5" /> Submit your startup
+        <Rocket className="h-3.5 w-3.5" /> Submit your startup
       </Link>
     </div>
   );

@@ -53,9 +53,65 @@ export const CURRENT_INVESTOR = {
   name: "Alex Morgan",
   title: "Angel · 14 active checks",
   avatarUrl: investorAvatarUrl(12),
+  coverImageUrl: "/covers/alex-morgan-cover.png",
+  location: "Brisbane, Australia",
+  bio: "Backing founders in SaaS, FinTech, and climate at seed and Series A. Former operator; focused on capital-efficient GTM and clear unit economics.",
   dealsSeen: "312",
   watchlist: "9",
+  portfolioCompanies: "14",
+  checksThisYear: "3",
 };
+
+export const CURRENT_FOUNDER = {
+  name: "Daniel",
+  title: "Founder · Apten",
+  company: "Apten",
+  avatarUrl: "/avatars/daniel.png",
+};
+
+/** Atlas founding team — shown on Network for demo. */
+export const ATLAS_FOUNDERS: NetworkPerson[] = [
+  {
+    id: "founder-luca",
+    name: "Luca Martinuzzi",
+    title: "Co-founder · Atlas",
+    location: "San Francisco",
+    mutuals: 0,
+    tags: ["Product", "GTM"],
+    initials: "LM",
+    avatarUrl: "/avatars/luca.png",
+  },
+  {
+    id: "founder-axel",
+    name: "Axel Ferreira Garcia",
+    title: "Co-founder · Atlas",
+    location: "London",
+    mutuals: 0,
+    tags: ["Engineering", "AI"],
+    initials: "AG",
+    avatarUrl: "/avatars/axel.png",
+  },
+  {
+    id: "founder-nick",
+    name: "Nick Svetlov",
+    title: "Co-founder · Atlas",
+    location: "San Francisco",
+    mutuals: 0,
+    tags: ["Strategy", "Investors"],
+    initials: "NS",
+    avatarUrl: "/avatars/nick.png",
+  },
+  {
+    id: "founder-tom",
+    name: "Tom MacIntyre",
+    title: "Co-founder · Atlas",
+    location: "New York",
+    mutuals: 0,
+    tags: ["Operations", "Finance"],
+    initials: "TM",
+    avatarUrl: "/avatars/tom.png",
+  },
+];
 
 export const NETWORK_INVITES: NetworkPerson[] = [
   {
@@ -124,7 +180,7 @@ export const NETWORK_SUGGESTED: NetworkPerson[] = [
   {
     id: "s4",
     name: "Anya Volkov",
-    title: "Co-founder · Clearspace",
+    title: "Co-founder · Apten",
     location: "Zurich",
     mutuals: 2,
     tags: ["AgTech"],
@@ -191,14 +247,14 @@ export const TOP_INVESTOR_VIEWERS: InvestorViewer[] = [
 export const STARTUPS: Startup[] = [
   {
     id: "clearspace",
-    name: "Clearspace",
-    logo: "CS",
+    name: "Apten",
+    logo: "A",
     logoUrl: startupLogoUrl("clearspace"),
     sector: "Consumer / Health",
     stage: "Early Revenue",
     location: "San Francisco · Remote",
     founders: [
-      { name: "Oliver Grant", linkedin: "#" },
+      { name: "Daniel", linkedin: "#" },
       { name: "Maya Chen", linkedin: "#" },
     ],
     raiseAmount: "$1.5M",
@@ -207,7 +263,7 @@ export const STARTUPS: Startup[] = [
     aiScore: 8.4,
     tagline: "Cut your screen time in half with a moment of intentionality",
     summary:
-      "Clearspace is a digital wellbeing app that tackles compulsive phone use. It inserts a deliberate pause before a user opens distracting apps, breaking the doomscroll habit. The product targets anyone struggling with screen time, focus, or phone addiction.",
+      "Apten is a digital wellbeing app that tackles compulsive phone use. It inserts a deliberate pause before a user opens distracting apps, breaking the doomscroll habit. The product targets anyone struggling with screen time, focus, or phone addiction.",
     tractionNote: "500k+ downloads · Featured in App Store wellness · 4.8★ avg rating",
     currentStage: "Scaling paid conversion · iOS + Android live",
     focusTags: ["Consumer", "Health", "Wellbeing", "Mobile"],
@@ -227,7 +283,7 @@ export const STARTUPS: Startup[] = [
     youtubeVideoId: "dkOpG3kqmy4",
     aiSentiment: "Strong Positive",
     aiSummary:
-      "Clearspace addresses a widespread, emotionally resonant problem with a simple intervention that shows early product-market fit. Traction and App Store visibility validate demand, though long-term retention in consumer wellness remains the key diligence question.",
+      "Apten addresses a widespread, emotionally resonant problem with a simple intervention that shows early product-market fit. Traction and App Store visibility validate demand, though long-term retention in consumer wellness remains the key diligence question.",
     aiScoreFactors: [
       "Large addressable market in digital wellbeing with proven willingness to pay for focus tools.",
       "Differentiated pause mechanic is memorable and defensible vs. pure screen-time blockers.",
@@ -459,3 +515,13 @@ export const STARTUPS: Startup[] = [
 
 /** Investor feed — highest Atlas AI score first. */
 export const FEED_STARTUPS: Startup[] = [...STARTUPS].sort((a, b) => b.aiScore - a.aiScore);
+
+/** Daniel's Apten listing on the marketplace (founder demo — uses submitted pitch video). */
+export function getFounderListedStartup(): Startup {
+  const clearspace = STARTUPS.find((s) => s.id === "clearspace");
+  if (!clearspace) throw new Error("Apten startup missing from seed data");
+  return {
+    ...clearspace,
+    youtubeVideoId: "VYM-lvMI5QY",
+  };
+}

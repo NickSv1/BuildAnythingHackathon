@@ -1,6 +1,6 @@
 import type { Startup } from "@/lib/mock-data";
 import { AvatarImage } from "@/components/avatar-image";
-import { Sparkles, TrendingUp, ShieldCheck } from "lucide-react";
+import { TrendingUp, ShieldCheck } from "lucide-react";
 
 export function DealCard({
   s,
@@ -85,8 +85,7 @@ function ScoreBadge({ score }: { score: number }) {
   const tone =
     score >= 8 ? "text-primary" : score >= 7 ? "text-foreground" : "text-muted-foreground";
   return (
-    <div className={`flex items-center gap-1 text-sm font-bold tabular-nums ${tone}`}>
-      <Sparkles className="h-3 w-3" />
+    <div className={`text-sm font-bold tabular-nums ${tone}`}>
       {score.toFixed(1)}
       <span className="text-[10px] font-normal text-muted-foreground">/10</span>
     </div>

@@ -9,10 +9,10 @@ import {
   Search,
   MapPin,
   Briefcase,
-  Sparkles,
+  UsersRound,
   TrendingUp,
 } from "lucide-react";
-import { NETWORK_INVITES, NETWORK_SUGGESTED, type NetworkPerson } from "@/lib/mock-data";
+import { ATLAS_FOUNDERS, NETWORK_INVITES, NETWORK_SUGGESTED, type NetworkPerson } from "@/lib/mock-data";
 import { AvatarImage } from "@/components/avatar-image";
 
 export const Route = createFileRoute("/network")({
@@ -44,11 +44,29 @@ function NetworkPage() {
           <NavRow icon={<Users className="h-4 w-4" />} label="Connections" count={284} active={tab === "connections"} onClick={() => setTab("connections")} />
           <NavRow icon={<UserPlus className="h-4 w-4" />} label="Invitations" count={NETWORK_INVITES.length - dismissed.size} active={tab === "grow"} onClick={() => setTab("grow")} />
           <NavRow icon={<Briefcase className="h-4 w-4" />} label="Companies followed" count={37} />
-          <NavRow icon={<Sparkles className="h-4 w-4" />} label="Syndicates" count={5} />
+          <NavRow icon={<UsersRound className="h-4 w-4" />} label="Syndicates" count={5} />
         </aside>
 
         {/* Center */}
         <section className="space-y-4">
+          <PanelHeader title="Atlas founders" subtitle="The team building the investor platform" />
+          <div className="grid gap-3 sm:grid-cols-2">
+            {ATLAS_FOUNDERS.map((p) => (
+              <SuggestedCard
+                key={p.id}
+                p={p}
+                connected={connected.has(p.id)}
+                onConnect={() =>
+                  setConnected((c) => {
+                    const n = new Set(c);
+                    n.has(p.id) ? n.delete(p.id) : n.add(p.id);
+                    return n;
+                  })
+                }
+              />
+            ))}
+          </div>
+
           {tab === "grow" && (
             <>
               <PanelHeader title="Pending invitations" subtitle="People asking to connect" />
@@ -94,7 +112,7 @@ function NetworkPage() {
                 </div>
               </div>
               <div className="grid gap-2">
-                {[...NETWORK_INVITES, ...NETWORK_SUGGESTED].map((p) => (
+                {[...ATLAS_FOUNDERS, ...NETWORK_INVITES, ...NETWORK_SUGGESTED].map((p) => (
                   <ConnectionRow key={p.id} p={p} />
                 ))}
               </div>
@@ -112,7 +130,7 @@ function NetworkPage() {
             <Metric label="Deals via referrals" value="6" trend="+2" />
             <Metric label="Syndicates active" value="5" trend="—" />
           </div>
-          <div className="rounded-xl border border-border bg-gradient-to-br from-primary/10 to-primary/0 p-4 shadow-sm">
+          <div className="rounded-xl border border-border bg-primary/5 p-4 shadow-sm">
             <div className="text-sm font-semibold">Atlas Verified Angels</div>
             <p className="mt-1 text-xs text-muted-foreground">Get a verified badge and 3× more inbound founder outreach.</p>
             <button className="mt-3 w-full rounded-full bg-foreground px-3 py-2 text-xs font-semibold text-background hover:opacity-90">Apply for verification</button>
@@ -173,7 +191,7 @@ function InviteCard({ p, onAccept, onIgnore, accepted }: { p: NetworkPerson; onA
         </div>
       </div>
       {accepted ? (
-        <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-3 py-1.5 text-xs font-medium text-primary">
+        <span className="inline-flex items-center gap-1 rounded-full bg-interested/15 px-3 py-1.5 text-xs font-medium text-interested">
           <Check className="h-3.5 w-3.5" /> Connected
         </span>
       ) : (
@@ -181,7 +199,7 @@ function InviteCard({ p, onAccept, onIgnore, accepted }: { p: NetworkPerson; onA
           <button onClick={onIgnore} className="grid h-9 w-9 place-items-center rounded-full border border-border text-muted-foreground hover:bg-surface hover:text-foreground">
             <X className="h-4 w-4" />
           </button>
-          <button onClick={onAccept} className="inline-flex h-9 items-center gap-1.5 rounded-full bg-primary px-4 text-xs font-semibold text-primary-foreground hover:opacity-90">
+          <button onClick={onAccept} className="inline-flex h-9 items-center gap-1.5 rounded-full bg-interested px-4 text-xs font-semibold text-interested-foreground hover:opacity-90">
             <Check className="h-3.5 w-3.5" /> Accept
           </button>
         </div>
@@ -193,7 +211,7 @@ function InviteCard({ p, onAccept, onIgnore, accepted }: { p: NetworkPerson; onA
 function SuggestedCard({ p, connected, onConnect }: { p: NetworkPerson; connected: boolean; onConnect: () => void }) {
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-card text-center shadow-sm">
-      <div className="h-12 bg-gradient-to-br from-primary/30 via-primary/10 to-destructive/20" />
+      <div className="h-12 bg-primary/10" />
       <div className="-mt-7 flex flex-col items-center px-4 pb-4">
         <Avatar p={p} size={56} />
         <div className="mt-2 truncate font-semibold">{p.name}</div>
@@ -207,7 +225,7 @@ function SuggestedCard({ p, connected, onConnect }: { p: NetworkPerson; connecte
         <button
           onClick={onConnect}
           className={`mt-3 w-full rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-            connected ? "border border-border text-muted-foreground hover:bg-surface" : "bg-primary text-primary-foreground hover:opacity-90"
+            connected ? "border border-border text-muted-foreground hover:bg-surface" : "bg-interested text-interested-foreground hover:opacity-90"
           }`}
         >
           {connected ? "Pending" : "Connect"}

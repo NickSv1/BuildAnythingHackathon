@@ -6,7 +6,6 @@ import {
   ShieldCheck,
   MapPin,
   TrendingUp,
-  Sparkles,
   Play,
   ArrowRight,
   ThumbsUp,
@@ -15,12 +14,20 @@ import {
 export function FeedPost({
   s,
   onOpen,
+  postedAgo,
+  isOwnListing,
 }: {
   s: Startup;
   onOpen: () => void;
+  postedAgo?: string;
+  isOwnListing?: boolean;
 }) {
   return (
-    <article className="rounded-xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md">
+    <article
+      className={`rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-md ${
+        isOwnListing ? "border-primary/40 ring-1 ring-primary/20" : "border-border"
+      }`}
+    >
       {/* Header */}
       <header className="flex items-start gap-3 px-4 pt-4">
         <AvatarImage
@@ -46,16 +53,22 @@ export function FeedPost({
           <div className="mt-0.5 text-xs text-muted-foreground">
             {s.sector} · {s.stage} · {s.founders[0].name} + {s.founders.length - 1} other
           </div>
-          <div className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
+          <div className="mt-0.5 flex flex-wrap items-center gap-1 text-[11px] text-muted-foreground">
             <MapPin className="h-3 w-3" /> {s.location}
-            <span>·</span>
-            <span>{((s.aiScore * 3) | 0) + 2}h</span>
+            {postedAgo ? (
+              <>
+                <span>·</span>
+                <span className="font-medium text-primary">Posted {postedAgo}</span>
+              </>
+            ) : (
+              <>
+                <span>·</span>
+                <span>{((s.aiScore * 3) | 0) + 2}h</span>
+              </>
+            )}
           </div>
         </div>
-        <div className="flex items-center gap-1 text-sm font-bold tabular-nums text-primary">
-          <Sparkles className="h-3.5 w-3.5" />
-          {s.aiScore.toFixed(1)}
-        </div>
+        <div className="text-sm font-bold tabular-nums text-primary">{s.aiScore.toFixed(1)}</div>
       </header>
 
       {/* Body */}
@@ -76,10 +89,10 @@ export function FeedPost({
         ) : (
           <button
             onClick={onOpen}
-            className="group relative block w-full overflow-hidden bg-gradient-to-br from-surface to-background"
+            className="group relative block w-full overflow-hidden bg-surface"
           >
             <div className="aspect-[16/9] w-full" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,oklch(0.72_0.16_162/0.12),transparent_60%)]" />
+            <div className="absolute inset-0 bg-primary/5" />
             <div className="absolute inset-0 grid place-items-center">
               <div className="grid h-14 w-14 place-items-center rounded-full bg-foreground/15 backdrop-blur-md ring-1 ring-foreground/20 transition-transform group-hover:scale-110">
                 <Play className="h-5 w-5 translate-x-0.5 fill-foreground text-foreground" />
@@ -105,13 +118,29 @@ export function FeedPost({
 
       {/* Stats row */}
       <div className="flex items-center justify-between px-4 py-2 text-[11.5px] text-muted-foreground">
-        <span className="inline-flex items-center gap-1">
-          <span className="grid h-4 w-4 place-items-center rounded-full bg-primary text-[9px] text-primary-foreground">
-            <ThumbsUp className="h-2.5 w-2.5" />
-          </span>
-          {142 + Math.floor(s.aiScore * 30)} investors interested
-        </span>
-        <span>{18 + Math.floor(s.composite / 4)} comments · {s.raisedSoFar}% committed</span>
+        {isOwnListing ? (
+          <>
+            <span className="inline-flex items-center gap-1">
+              <span className="grid h-4 w-4 place-items-center rounded-full bg-muted text-muted-foreground">
+                <ThumbsUp className="h-2.5 w-2.5" />
+              </span>
+              0 investors interested
+            </span>
+            <span>0 comments · 0% committed</span>
+          </>
+        ) : (
+          <>
+            <span className="inline-flex items-center gap-1">
+              <span className="grid h-4 w-4 place-items-center rounded-full bg-interested text-[9px] text-interested-foreground">
+                <ThumbsUp className="h-2.5 w-2.5" />
+              </span>
+              {142 + Math.floor(s.aiScore * 30)} investors interested
+            </span>
+            <span>
+              {18 + Math.floor(s.composite / 4)} comments · {s.raisedSoFar}% committed
+            </span>
+          </>
+        )}
       </div>
 
       <DealActionBar s={s} layout="grid" />

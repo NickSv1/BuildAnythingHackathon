@@ -30,77 +30,108 @@
   --color-ring: var(--ring);
   --color-surface: var(--surface);
   --color-surface-elevated: var(--surface-elevated);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-interested: var(--interested);
+  --color-interested-foreground: var(--interested-foreground);
+  --color-copper: var(--copper);
+  --color-copper-foreground: var(--copper-foreground);
   --color-bull: var(--bull);
   --color-bull-foreground: var(--bull-foreground);
   --color-bull-tint: var(--bull-tint);
   --color-bear: var(--bear);
   --color-bear-foreground: var(--bear-foreground);
   --color-bear-tint: var(--bear-tint);
+  --color-bull-emphasis: var(--bull-emphasis);
+  --color-bear-emphasis: var(--bear-emphasis);
 }
 
 :root {
   --radius: 0.3rem;
-  /* Alpine daylight — snowfield, mist, pine, granite */
-  --background: oklch(0.98 0.008 200);          /* fresh snow with cool tint */
-  --foreground: oklch(0.24 0.02 240);           /* wet granite */
-  --surface: oklch(0.95 0.012 210);             /* morning mist */
-  --surface-elevated: oklch(0.92 0.015 215);    /* glacier shadow */
-  --card: oklch(1 0.003 200);
-  --card-foreground: oklch(0.24 0.02 240);
-  --popover: oklch(1 0.003 200);
-  --popover-foreground: oklch(0.24 0.02 240);
-  --primary: oklch(0.45 0.08 165);              /* deep pine */
-  --primary-foreground: oklch(0.98 0.008 200);
-  --secondary: oklch(0.9 0.012 220);            /* slate stone */
-  --secondary-foreground: oklch(0.24 0.02 240);
-  --muted: oklch(0.93 0.01 215);
-  --muted-foreground: oklch(0.46 0.02 230);     /* basalt */
-  --accent: oklch(0.88 0.025 195);              /* lichen */
-  --accent-foreground: oklch(0.24 0.02 240);
-  --destructive: oklch(0.52 0.14 35);           /* sunset on rock / autumn larch */
-  --destructive-foreground: oklch(0.98 0.008 200);
-  --border: oklch(0.86 0.012 220);
-  --input: oklch(0.9 0.012 220);
-  --ring: oklch(0.45 0.08 165);
 
-  --bull: oklch(0.5 0.09 165);                  /* alpine pine */
-  --bull-foreground: oklch(0.28 0.06 165);
-  --bull-tint: oklch(0.85 0.05 165 / 0.4);
-  --bear: oklch(0.52 0.14 35);                  /* dusk on stone */
-  --bear-foreground: oklch(0.3 0.1 35);
-  --bear-tint: oklch(0.88 0.06 35 / 0.4);
+  --atlas-navy: #070b17;
+  --atlas-white: #ffffff;
+  --atlas-green: #22c55e;
+  --atlas-interested: #0b4a47;
+  --atlas-copper: #b06a3c;
+
+  --background: var(--atlas-white);
+  --foreground: var(--atlas-navy);
+  --surface: #f5f6f8;
+  --surface-elevated: #ebecef;
+  --card: var(--atlas-white);
+  --card-foreground: var(--atlas-navy);
+  --popover: var(--atlas-white);
+  --popover-foreground: var(--atlas-navy);
+  --primary: var(--atlas-navy);
+  --primary-foreground: var(--atlas-white);
+  --secondary: #ebecef;
+  --secondary-foreground: var(--atlas-navy);
+  --muted: #f0f1f3;
+  --muted-foreground: #5c6370;
+  --accent: #ebecef;
+  --accent-foreground: var(--atlas-navy);
+  --destructive: #2a3544;
+  --destructive-foreground: var(--atlas-white);
+  --border: #e2e4e8;
+  --input: #ebecef;
+  --ring: var(--atlas-navy);
+
+  --success: var(--atlas-green);
+  --success-foreground: var(--atlas-white);
+  --interested: var(--atlas-interested);
+  --interested-foreground: var(--atlas-white);
+  --copper: var(--atlas-copper);
+  --copper-foreground: var(--atlas-white);
+
+  --bull: var(--atlas-navy);
+  --bull-foreground: var(--atlas-navy);
+  --bull-tint: #070b170f;
+  --bear: #5c6370;
+  --bear-foreground: #3d434d;
+  --bear-tint: #5c637014;
+  --bull-emphasis: #16a34a;
+  --bear-emphasis: #dc2626;
 }
 
 .dark {
-  /* Alpine dusk — twilight ridge, moonlit snow, deep pine */
-  --background: oklch(0.19 0.022 235);          /* twilight valley */
-  --foreground: oklch(0.95 0.012 200);          /* moonlit snow */
-  --surface: oklch(0.23 0.025 235);             /* shadowed ridge */
-  --surface-elevated: oklch(0.27 0.028 230);    /* lit ridge face */
-  --card: oklch(0.23 0.025 235);
-  --card-foreground: oklch(0.95 0.012 200);
-  --popover: oklch(0.23 0.025 235);
-  --popover-foreground: oklch(0.95 0.012 200);
-  --primary: oklch(0.7 0.1 165);                /* glacial sage */
-  --primary-foreground: oklch(0.19 0.022 235);
-  --secondary: oklch(0.3 0.025 230);
-  --secondary-foreground: oklch(0.95 0.012 200);
-  --muted: oklch(0.28 0.025 232);
-  --muted-foreground: oklch(0.68 0.018 215);    /* alpine fog */
-  --accent: oklch(0.33 0.03 220);               /* slate ridge */
-  --accent-foreground: oklch(0.95 0.012 200);
-  --destructive: oklch(0.62 0.16 35);           /* alpenglow */
-  --destructive-foreground: oklch(0.95 0.012 200);
-  --border: oklch(0.32 0.025 230);
-  --input: oklch(0.3 0.025 230);
-  --ring: oklch(0.7 0.1 165);
+  --background: var(--atlas-navy);
+  --foreground: var(--atlas-white);
+  --surface: #0c1222;
+  --surface-elevated: #141c2e;
+  --card: #0c1222;
+  --card-foreground: var(--atlas-white);
+  --popover: #0c1222;
+  --popover-foreground: var(--atlas-white);
+  --primary: var(--atlas-white);
+  --primary-foreground: var(--atlas-navy);
+  --secondary: #141c2e;
+  --secondary-foreground: var(--atlas-white);
+  --muted: #141c2e;
+  --muted-foreground: #8b9199;
+  --accent: #1e2a42;
+  --accent-foreground: var(--atlas-white);
+  --destructive: #2a3544;
+  --destructive-foreground: var(--atlas-white);
+  --border: #1e2a42;
+  --input: #141c2e;
+  --ring: var(--atlas-white);
 
-  --bull: oklch(0.7 0.1 165);                   /* glacial sage */
-  --bull-foreground: oklch(0.94 0.05 165);
-  --bull-tint: oklch(0.32 0.05 165 / 0.3);
-  --bear: oklch(0.62 0.16 35);                  /* alpenglow */
-  --bear-foreground: oklch(0.94 0.06 35);
-  --bear-tint: oklch(0.35 0.08 35 / 0.3);
+  --success: var(--atlas-green);
+  --success-foreground: var(--atlas-white);
+  --interested: var(--atlas-interested);
+  --interested-foreground: var(--atlas-white);
+  --copper: var(--atlas-copper);
+  --copper-foreground: var(--atlas-white);
+
+  --bull: var(--atlas-white);
+  --bull-foreground: #e8eaed;
+  --bull-tint: #ffffff14;
+  --bear: #8b9199;
+  --bear-foreground: #c5c9cf;
+  --bear-tint: #8b91991f;
+  --bull-emphasis: #22c55e;
+  --bear-emphasis: #ef4444;
 }
 
 @layer base {

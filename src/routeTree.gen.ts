@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as NetworkRouteImport } from './routes/network'
+import { Route as InvestorRouteImport } from './routes/investor'
 import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as FounderMessagesRouteImport } from './routes/founder-messages'
+import { Route as FounderFeedRouteImport } from './routes/founder-feed'
 import { Route as FounderAnalyticsRouteImport } from './routes/founder-analytics'
 import { Route as FounderRouteImport } from './routes/founder'
 import { Route as IndexRouteImport } from './routes/index'
@@ -27,6 +29,11 @@ const NetworkRoute = NetworkRouteImport.update({
   path: '/network',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InvestorRoute = InvestorRouteImport.update({
+  id: '/investor',
+  path: '/investor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InboxRoute = InboxRouteImport.update({
   id: '/inbox',
   path: '/inbox',
@@ -35,6 +42,11 @@ const InboxRoute = InboxRouteImport.update({
 const FounderMessagesRoute = FounderMessagesRouteImport.update({
   id: '/founder-messages',
   path: '/founder-messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FounderFeedRoute = FounderFeedRouteImport.update({
+  id: '/founder-feed',
+  path: '/founder-feed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FounderAnalyticsRoute = FounderAnalyticsRouteImport.update({
@@ -57,8 +69,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/founder': typeof FounderRoute
   '/founder-analytics': typeof FounderAnalyticsRoute
+  '/founder-feed': typeof FounderFeedRoute
   '/founder-messages': typeof FounderMessagesRoute
   '/inbox': typeof InboxRoute
+  '/investor': typeof InvestorRoute
   '/network': typeof NetworkRoute
   '/portfolio': typeof PortfolioRoute
 }
@@ -66,8 +80,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/founder': typeof FounderRoute
   '/founder-analytics': typeof FounderAnalyticsRoute
+  '/founder-feed': typeof FounderFeedRoute
   '/founder-messages': typeof FounderMessagesRoute
   '/inbox': typeof InboxRoute
+  '/investor': typeof InvestorRoute
   '/network': typeof NetworkRoute
   '/portfolio': typeof PortfolioRoute
 }
@@ -76,8 +92,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/founder': typeof FounderRoute
   '/founder-analytics': typeof FounderAnalyticsRoute
+  '/founder-feed': typeof FounderFeedRoute
   '/founder-messages': typeof FounderMessagesRoute
   '/inbox': typeof InboxRoute
+  '/investor': typeof InvestorRoute
   '/network': typeof NetworkRoute
   '/portfolio': typeof PortfolioRoute
 }
@@ -87,8 +105,10 @@ export interface FileRouteTypes {
     | '/'
     | '/founder'
     | '/founder-analytics'
+    | '/founder-feed'
     | '/founder-messages'
     | '/inbox'
+    | '/investor'
     | '/network'
     | '/portfolio'
   fileRoutesByTo: FileRoutesByTo
@@ -96,8 +116,10 @@ export interface FileRouteTypes {
     | '/'
     | '/founder'
     | '/founder-analytics'
+    | '/founder-feed'
     | '/founder-messages'
     | '/inbox'
+    | '/investor'
     | '/network'
     | '/portfolio'
   id:
@@ -105,8 +127,10 @@ export interface FileRouteTypes {
     | '/'
     | '/founder'
     | '/founder-analytics'
+    | '/founder-feed'
     | '/founder-messages'
     | '/inbox'
+    | '/investor'
     | '/network'
     | '/portfolio'
   fileRoutesById: FileRoutesById
@@ -115,8 +139,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FounderRoute: typeof FounderRoute
   FounderAnalyticsRoute: typeof FounderAnalyticsRoute
+  FounderFeedRoute: typeof FounderFeedRoute
   FounderMessagesRoute: typeof FounderMessagesRoute
   InboxRoute: typeof InboxRoute
+  InvestorRoute: typeof InvestorRoute
   NetworkRoute: typeof NetworkRoute
   PortfolioRoute: typeof PortfolioRoute
 }
@@ -137,6 +163,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NetworkRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/investor': {
+      id: '/investor'
+      path: '/investor'
+      fullPath: '/investor'
+      preLoaderRoute: typeof InvestorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/inbox': {
       id: '/inbox'
       path: '/inbox'
@@ -149,6 +182,13 @@ declare module '@tanstack/react-router' {
       path: '/founder-messages'
       fullPath: '/founder-messages'
       preLoaderRoute: typeof FounderMessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/founder-feed': {
+      id: '/founder-feed'
+      path: '/founder-feed'
+      fullPath: '/founder-feed'
+      preLoaderRoute: typeof FounderFeedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/founder-analytics': {
@@ -179,8 +219,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FounderRoute: FounderRoute,
   FounderAnalyticsRoute: FounderAnalyticsRoute,
+  FounderFeedRoute: FounderFeedRoute,
   FounderMessagesRoute: FounderMessagesRoute,
   InboxRoute: InboxRoute,
+  InvestorRoute: InvestorRoute,
   NetworkRoute: NetworkRoute,
   PortfolioRoute: PortfolioRoute,
 }

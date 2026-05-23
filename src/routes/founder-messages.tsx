@@ -1,6 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InboxPage } from "@/components/inbox-page";
 
+function FounderMessagesPage() {
+  return <InboxPage mode="founder" />;
+}
+
 export const Route = createFileRoute("/founder-messages")({
   head: () => ({
     meta: [
@@ -10,5 +14,5 @@ export const Route = createFileRoute("/founder-messages")({
       { property: "og:description", content: "Investor conversations for your active raise." },
     ],
   }),
-  component: InboxPage,
+  component: FounderMessagesPage,
 });
